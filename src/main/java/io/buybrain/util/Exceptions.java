@@ -17,6 +17,13 @@ import java.util.function.Function;
  * would make a Function and Consumer ambiguous, as well as a Supplier and Runnable.
  */
 public class Exceptions {
+    /**
+     * Try to get a value from the given supplier, rethrowing any exception wrapped in a RuntimeException
+     *
+     * @param supplier the supplier to get a value from
+     * @param <T> the type of element to get
+     * @return the supplied value
+     */
     public static <T> T rethrowR(@NonNull ThrowingSupplier<T> supplier) {
         try {
             return supplier.get();
@@ -25,6 +32,11 @@ public class Exceptions {
         }
     }
 
+    /**
+     * Try to run a runnable, rethrowing any exception wrapped in a RuntimeException
+     *
+     * @param runnable the runnable to run
+     */
     public static void rethrow(@NonNull ThrowingRunnable runnable) {
         try {
             runnable.run();
@@ -33,6 +45,14 @@ public class Exceptions {
         }
     }
 
+    /**
+     * Transform a throwing function into a non throwing function by wrapping exceptions in RuntimeExceptions
+     *
+     * @param func the function to transform
+     * @param <T> the functions input type
+     * @param <R> the functions return type
+     * @return the transformed non-throwing function
+     */
     public static <T, R> Function<T, R> rethrowR(@NonNull ThrowingFunction<T, R> func) {
         return in -> {
             try {
@@ -43,6 +63,13 @@ public class Exceptions {
         };
     }
 
+    /**
+     * Transform a throwing consumer into a non throwing consumer by wrapping exceptions in RuntimeExceptions
+     *
+     * @param consumer the consumer to transform
+     * @param <T> the consumers input type
+     * @return the transformed non-throwing consumer
+     */
     public static <T> Consumer<T> rethrow(@NonNull ThrowingConsumer<T> consumer) {
         return in -> {
             try {

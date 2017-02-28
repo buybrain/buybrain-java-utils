@@ -7,10 +7,21 @@
     <groupId>io.buybrain</groupId>
     <artifactId>util</artifactId>
     <version>0.0.1</version>
+    <packaging>jar</packaging>
+
+    <name>Buybrain Java utils</name>
+    <description>A collection of useful Java utilities</description>
+    <url>https://github.com/buybrain/buybrain-java-utils</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
 
     <developers>
         <developer>
-            <id>emeijer</id>
             <name>Ede Meijer</name>
             <email>ede@buybrain.io</email>
             <url>http://www.github.com/EdeMeijer</url>
@@ -18,6 +29,12 @@
             <organizationUrl>https://buybrain.io</organizationUrl>
         </developer>
     </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/buybrain/buybrain-java-utils.git</connection>
+        <developerConnection>scm:git:ssh://github.com:buybrain/buybrain-java-utils.git</developerConnection>
+        <url>https://github.com/buybrain/buybrain-java-utils/tree/master</url>
+    </scm>
 
     <dependencies>
         <dependency>
