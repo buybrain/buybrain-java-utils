@@ -10,26 +10,23 @@ import static org.hamcrest.core.Is.is;
 
 public class ResultTest {
     @Test
-    public void testAndThenFunctionOk() throws Throwable {
-        val res = ok(41).andThen(val -> ok(val + 1));
+    public void testMapFunctionOk() throws Throwable {
+        val res = ok(41).map(val -> ok(val + 1));
         assertThat(res.isOk(), is(true));
         assertThat(res.get(), is(42));
     }
 
     @Test
-    public void testAndThenFunctionError() {
-        val res = ok(41).andThen(val -> err(new Exception("meh")));
+    public void testMapFunctionError() {
+        val res = ok(41).map(val -> err(new Exception("meh")));
         assertThat(res.isOk(), is(false));
         assertThat(res.getError().getMessage(), is("meh"));
     }
 
     @Test(expectedExceptions = Exception.class)
-    public void testAndThenFunctionRethrow() {
-        ok(41).andThen(val -> {
-            if (val > 0) {
-                throw new Exception("meh");
-            }
-            return ok(42);
+    public void testMapFunctionRethrow() {
+        ok(41).map(val -> {
+            throw new Exception("meh");
         });
     }
 
@@ -40,17 +37,14 @@ public class ResultTest {
 
     @Test
     public void testAndThenTrySuccess() {
-        val res = ok(41).andThenTry(val -> val + 1);
+        val res = ok(41).tryMap(val -> val + 1);
         assertThat(res, is(ok(42)));
     }
 
     @Test
     public void testAndThenTryError() throws Throwable {
-        val res = ok(41).andThenTry(val -> {
-            if (val > 0) {
-                throw new Exception("meh");
-            }
-            return 42;
+        val res = ok(41).tryMap(val -> {
+            throw new Exception("meh");
         });
         assertThat(res.isOk(), is(false));
     }
@@ -76,13 +70,13 @@ public class ResultTest {
 
     @Test
     public void testOrElseFunctionOk() {
-        assertThat(ok(42).orElse(err -> ok(43)), is(ok(42)));
-        assertThat(err(new Exception("meh")).orElse(err -> ok(43)), is(ok(43)));
+        assertThat(ok(42).mapErr(err -> ok(43)), is(ok(42)));
+        assertThat(err(new Exception("meh")).mapErr(err -> ok(43)), is(ok(43)));
     }
 
     @Test(expectedExceptions = Exception.class)
     public void testOrElseSupplierRethrow() {
-        err(new Exception("meh")).orElse(err -> {
+        err(new Exception("meh")).mapErr(err -> {
             throw err;
         });
     }
