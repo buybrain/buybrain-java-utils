@@ -13,7 +13,7 @@ import static org.mockito.Mockito.*;
 
 public class RetryerTest {
     @Test
-    public void testSimpleRunnable() throws Exception {
+    public void testSimpleRunnable() throws Throwable {
         val counter = new AtomicInteger();
 
         val clock = spy(new MockClock());
@@ -29,7 +29,7 @@ public class RetryerTest {
     }
 
     @Test
-    public void testSimpleSupplier() throws Exception {
+    public void testSimpleSupplier() throws Throwable {
         val counter = new AtomicInteger();
 
         val clock = spy(new MockClock());
@@ -46,7 +46,7 @@ public class RetryerTest {
     }
 
     @Test
-    public void testExponentialBackoff() throws Exception {
+    public void testExponentialBackoff() throws Throwable {
         val counter = new AtomicInteger();
 
         val clock = spy(new MockClock());
@@ -72,7 +72,7 @@ public class RetryerTest {
     }
 
     @Test
-    public void testLinearDelay() throws Exception {
+    public void testLinearDelay() throws Throwable {
         val counter = new AtomicInteger();
 
         val clock = spy(new MockClock());
@@ -94,7 +94,7 @@ public class RetryerTest {
     }
 
     @Test
-    public void testMaxAttempts() throws Exception {
+    public void testMaxAttempts() throws Throwable {
         val counter = new AtomicInteger();
 
         val retryer = Retryer.of(() -> {

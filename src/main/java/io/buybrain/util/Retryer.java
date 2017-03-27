@@ -76,9 +76,9 @@ public class Retryer {
             return (R) this;
         }
 
-        protected void resolve() throws Exception {
+        protected void resolve() throws Throwable {
             int attempts = 0;
-            Exception lastException;
+            Throwable lastException;
             Duration delay = baseDelay;
             Random random = randomSeed == null ? new Random() : new Random(randomSeed);
 
@@ -86,14 +86,14 @@ public class Retryer {
                 try {
                     returnValue = execute();
                     return;
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     lastException = ex;
                 }
                 attempts++;
                 if (maxAttempts > 0 && attempts == maxAttempts) {
                     throw lastException;
                 }
-                log.warn("CAUGHT EXCEPTION, WILL RETRY IN " + delay, lastException);
+                log.warn("Retryer caught exception, will retry in " + delay, lastException);
 
                 sleeper.sleep(delay);
                 if (exponentialBackoff) {
@@ -115,19 +115,19 @@ public class Retryer {
             }
         }
 
-        protected abstract T execute() throws Exception;
+        protected abstract T execute() throws Throwable;
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class RunnableRetryer extends BaseRetryer<Void, RunnableRetryer> {
         private final ThrowingRunnable job;
 
-        public void run() throws Exception {
+        public void run() throws Throwable {
             resolve();
         }
 
         @Override
-        protected Void execute() throws Exception {
+        protected Void execute() throws Throwable {
             job.run();
             return null;
         }
@@ -137,13 +137,13 @@ public class Retryer {
     public static class SupplierRetryer<T> extends BaseRetryer<T, SupplierRetryer<T>> {
         private final ThrowingSupplier<T> job;
 
-        public T run() throws Exception {
+        public T run() throws Throwable {
             resolve();
             return returnValue;
         }
 
         @Override
-        protected T execute() throws Exception {
+        protected T execute() throws Throwable {
             return job.get();
         }
     }

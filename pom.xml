@@ -6,7 +6,7 @@
 
     <groupId>io.buybrain</groupId>
     <artifactId>util</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <packaging>jar</packaging>
 
     <name>Buybrain Java utils</name>
@@ -75,13 +75,19 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
-
-
+        
         <!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>1.10.19</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.7</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

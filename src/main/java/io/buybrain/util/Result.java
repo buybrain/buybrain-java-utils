@@ -12,7 +12,7 @@ import static io.buybrain.util.Exceptions.rethrowR;
 
 /**
  * Type that can be used to encode the result of a function, which can succeed or fail. Similar to Optional, but with
- * an error object added for failure cases. Can conveniently deal with throwing functions without try-catch messes.
+ * an error object added for failure cases. Can conveniently deal with throwing functions without try-catch constructs.
  */
 @EqualsAndHashCode
 public class Result<T, E extends Throwable> {
@@ -24,6 +24,13 @@ public class Result<T, E extends Throwable> {
         this.error = error;
     }
 
+    /**
+     * If the current value is OK, transform it into a new Result by applying a function.
+     * 
+     * @param op the function to apply, should return a Result object
+     * @return the transformed result
+     * @throws RuntimeException if the mapping function throws
+     */
     public <R> Result<R, ?> map(@NonNull ThrowingFunction<T, Result<R, ?>> op) {
         if (isOk()) {
             return rethrowR(op.bind(value));
@@ -33,6 +40,14 @@ public class Result<T, E extends Throwable> {
         }
     }
 
+    /**
+     * If the current value is OK, transform it into a new Result by applying a function.
+     * The function should return the raw value type T. It will be wrapped in OK if the function returns, and any
+     * throwable thrown will be wrapped in an Error result.
+     *
+     * @param op the function to apply, should return the raw value that will be automatically wrapped
+     * @return the transformed result
+     */
     public <R> Result<R, ?> tryMap(@NonNull ThrowingFunction<T, R> op) {
         if (isOk()) {
             return trying(op.bind(value));
@@ -42,6 +57,13 @@ public class Result<T, E extends Throwable> {
         }
     }
 
+    /**
+     * If the current value is OK, yield a new Result by calling a supplier.
+     *
+     * @param op the supplier to call, should return a Result object
+     * @return the new result
+     * @throws RuntimeException if the supplier throws
+     */
     public <R> Result<R, ?> andThen(@NonNull ThrowingSupplier<Result<R, ?>> op) {
         if (isOk()) {
             return rethrowR(op);
@@ -51,6 +73,14 @@ public class Result<T, E extends Throwable> {
         }
     }
 
+    /**
+     * If the current value is OK, yield a new Result by calling a supplier.
+     * The supplier return the raw value type T. It will be wrapped in OK if the supplier returns, and any
+     * throwable thrown will be wrapped in an Error result.
+     *
+     * @param op the supplier to call, should return a Result object
+     * @return the new result
+     */
     public <R> Result<R, ?> andThenTry(@NonNull ThrowingSupplier<R> op) {
         if (isOk()) {
             return trying(op);
@@ -60,6 +90,13 @@ public class Result<T, E extends Throwable> {
         }
     }
 
+    /**
+     * If the current value is OK, pass it to a consumer and return an empty OK result.
+     *
+     * @param op the consumer to call
+     * @return the new (empty) result
+     * @throws RuntimeException if the consumer throws
+     */
     public <R> Result<R, ?> andThen(@NonNull ThrowingConsumer<T> op) {
         if (isOk()) {
             rethrow(op.bind(value));
@@ -70,6 +107,13 @@ public class Result<T, E extends Throwable> {
         }
     }
 
+    /**
+     * If the current value is OK, pass it to a consumer and return an empty OK result.
+     * If the consumer throws, the error will be wrapped in an Error result.
+     *
+     * @param op the consumer to call
+     * @return the new (empty) result
+     */
     public Result<?, ?> andThenTry(@NonNull ThrowingConsumer<T> op) {
         if (isOk()) {
             return trying(op.bind(value));
@@ -78,6 +122,13 @@ public class Result<T, E extends Throwable> {
         }
     }
 
+    /**
+     * If the current value is OK, call a runnable and return an empty OK result.
+     *
+     * @param op the runnable to run
+     * @return the new (empty) result
+     * @throws RuntimeException if the runnable throws
+     */
     public <R> Result<R, ?> andThen(@NonNull ThrowingRunnable op) {
         if (isOk()) {
             rethrow(op);
@@ -88,6 +139,14 @@ public class Result<T, E extends Throwable> {
         }
     }
 
+    /**
+     * If the current value is OK, call a runnable and return an empty OK result.
+     * f the runnable throws, the error will be wrapped in an Error result.
+     *
+     * @param op the runnable to run
+     * @return the new (empty) result
+     * @throws RuntimeException if the runnable throws
+     */
     public <R> Result<R, ?> andThenTry(@NonNull ThrowingRunnable op) {
         if (isOk()) {
             return trying(op);
@@ -97,6 +156,12 @@ public class Result<T, E extends Throwable> {
         }
     }
 
+    /**
+     * If the current value is an error, transform it into a default value.
+     * 
+     * @param defaultValue the default value
+     * @return the new OK result wrapping the default value
+     */
     public Result<T, ?> orElse(T defaultValue) {
         if (isOk()) {
             return this;
@@ -178,6 +243,10 @@ public class Result<T, E extends Throwable> {
             throw error;
         }
     }
+    
+    public T getUnsafe() {
+        return value;
+    }
 
     public E getError() {
         return error;
@@ -190,7 +259,7 @@ public class Result<T, E extends Throwable> {
     public static <T> Result<T, ?> trying(@NonNull ThrowingSupplier<T> op) {
         try {
             return ok(op.get());
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             return err(ex);
         }
     }
@@ -199,7 +268,7 @@ public class Result<T, E extends Throwable> {
         try {
             op.run();
             return ok();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             return err(ex);
         }
     }

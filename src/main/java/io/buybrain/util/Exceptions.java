@@ -27,7 +27,7 @@ public class Exceptions {
     public static <T> T rethrowR(@NonNull ThrowingSupplier<T> supplier) {
         try {
             return supplier.get();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -40,7 +40,7 @@ public class Exceptions {
     public static void rethrow(@NonNull ThrowingRunnable runnable) {
         try {
             runnable.run();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -57,7 +57,7 @@ public class Exceptions {
         return in -> {
             try {
                 return func.apply(in);
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
                 throw new RuntimeException(ex);
             }
         };
@@ -74,7 +74,7 @@ public class Exceptions {
         return in -> {
             try {
                 consumer.accept(in);
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
                 throw new RuntimeException(ex);
             }
         };
