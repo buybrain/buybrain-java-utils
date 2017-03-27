@@ -4,14 +4,16 @@ import io.buybrain.util.function.ThrowingConsumer;
 import io.buybrain.util.function.ThrowingFunction;
 import io.buybrain.util.function.ThrowingRunnable;
 import io.buybrain.util.function.ThrowingSupplier;
+import lombok.EqualsAndHashCode;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
+import static io.buybrain.util.Exceptions.rethrow;
+import static io.buybrain.util.Exceptions.rethrowR;
 
 /**
  * Type that can be used to encode the result of a function, which can succeed or fail. Similar to Optional, but with
  * an error object added for failure cases. Can conveniently deal with throwing functions without try-catch messes.
  */
+@EqualsAndHashCode
 public class Result<T, E extends Throwable> {
     private final T value;
     private final E error;
@@ -21,9 +23,9 @@ public class Result<T, E extends Throwable> {
         this.error = error;
     }
 
-    public <R> Result<R, ?> andThen(Function<T, Result<R, ?>> op) {
+    public <R> Result<R, ?> andThen(ThrowingFunction<T, Result<R, ?>> op) {
         if (isOk()) {
-            return op.apply(value);
+            return rethrowR(op.bind(value));
         } else {
             //noinspection unchecked
             return (Result<R, ?>) this;
@@ -39,9 +41,9 @@ public class Result<T, E extends Throwable> {
         }
     }
 
-    public <R> Result<R, ?> andThen(Supplier<Result<R, ?>> op) {
+    public <R> Result<R, ?> andThen(ThrowingSupplier<Result<R, ?>> op) {
         if (isOk()) {
-            return op.get();
+            return rethrowR(op);
         } else {
             //noinspection unchecked
             return (Result<R, ?>) this;
@@ -56,6 +58,16 @@ public class Result<T, E extends Throwable> {
         }
     }
 
+    public <R> Result<R, ?> andThen(ThrowingRunnable op) {
+        if (isOk()) {
+            rethrow(op);
+            return ok();
+        } else {
+            //noinspection unchecked
+            return (Result<R, ?>) this;
+        }
+    }
+
     public <R> Result<R, ?> andThenTry(ThrowingRunnable op) {
         if (isOk()) {
             return trying(op);
@@ -65,20 +77,40 @@ public class Result<T, E extends Throwable> {
         }
     }
 
-    public Result<T, ?> orElse(Function<E, Result<T, ?>> op) {
+    public Result<T, ?> orElse(T defaultValue) {
         if (isOk()) {
             return this;
         } else {
-            return op.apply(error);
+            return ok(defaultValue);
         }
     }
 
-    public Result<T, ?> orElse(Supplier<Result<T, ?>> op) {
+    public Result<T, ?> orElse(ThrowingFunction<E, Result<T, ?>> op) {
         if (isOk()) {
             return this;
         } else {
-            return op.get();
+            return rethrowR(op.bind(error));
         }
+    }
+
+    public Result<T, ?> orElse(ThrowingSupplier<Result<T, ?>> op) {
+        if (isOk()) {
+            return this;
+        } else {
+            return rethrowR(op);
+        }
+    }
+
+    public T get() throws E {
+        if (isOk()) {
+            return value;
+        } else {
+            throw error;
+        }
+    }
+
+    public E getError() {
+        return error;
     }
 
     public static <T> Result<T, ?> ok() {
