@@ -6,7 +6,7 @@
 
     <groupId>io.buybrain</groupId>
     <artifactId>util</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <packaging>jar</packaging>
 
     <name>Buybrain Java utils</name>
@@ -88,6 +88,13 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.7</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility-proxy</artifactId>
+            <version>3.0.0-rc1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -16,7 +16,8 @@ import java.util.concurrent.BlockingQueue;
  */
 public class QueuedIterator<T> implements Iterator<T> {
     private final BlockingQueue<Elem> queue;
-    private Elem next;
+    private T next;
+    private volatile boolean done = false;
 
     /**
      * QueuedIterator constructor
@@ -42,31 +43,40 @@ public class QueuedIterator<T> implements Iterator<T> {
      */
     @SneakyThrows
     public void done() {
-        queue.put(new Done());
+        done = true;
+        // Try to put a Done message on the queue, but in a non-blocking manner.
+        // We will check for done-ness after every received element, so adding this element is only in order to make
+        // sure that the done gets picked up when the consumer is waiting for an empty queue.
+        queue.offer(new Done());
     }
 
     @Override
     public boolean hasNext() {
-        return !(fetchNext() instanceof Done);
+        loadNext();
+        return next != null;
     }
 
     @Override
     public T next() {
-        val next = fetchNext();
-        if (next instanceof Done) {
+        loadNext();
+        if (next == null) {
             throw new RuntimeException("Called next() on finished QueuedIterator");
         }
-        this.next = null;
-        //noinspection unchecked
-        return ((Val) next).getElem();
+        val result = next;
+        next = null;
+
+        return result;
     }
 
     @SneakyThrows
-    private Elem fetchNext() {
-        if (next == null) {
-            next = queue.take();
+    private void loadNext() {
+        if (next == null && !(done && queue.isEmpty())) {
+            val nextVal = queue.take();
+            if (!(nextVal instanceof Done)) {
+                //noinspection unchecked
+                next = ((Val) nextVal).getElem();
+            }
         }
-        return next;
     }
 
     private interface Elem {
