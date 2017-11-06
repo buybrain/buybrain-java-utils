@@ -108,7 +108,7 @@ public class PeriodsTest {
     }
 
     @Test
-    public void testIntersect() {
+    public void testIntersectSingle() {
         assertThat(
             Periods.intersect(period("2017-01-01", "2017-02-01"), period("2017-01-15", "2017-02-15")),
             is(Optional.of(period("2017-01-15", "2017-02-01")))
@@ -118,6 +118,31 @@ public class PeriodsTest {
             Periods.intersect(period("2017-01-01", "2017-02-01"), period("2017-02-01", "2017-02-15")),
             is(Optional.empty())
         );
+    }
+
+    @Test
+    public void testIntersectMultiple() {
+        val first = asList(
+            period("2017-01-01", "2017-02-01"),
+            period("2017-02-15", "2017-02-16"),
+            period("2017-02-20", "2017-02-25")
+        );
+
+        val second = asList(
+            period("2017-01-02", "2017-01-10"),
+            period("2017-01-20", "2017-02-25")
+        );
+
+        val expected = asList(
+            period("2017-01-02", "2017-01-10"),
+            period("2017-01-20", "2017-02-01"),
+            period("2017-02-15", "2017-02-16"),
+            period("2017-02-20", "2017-02-25")
+        );
+
+        val result = Periods.intersect(first, second);
+
+        assertThat(result, is(expected));
     }
 
     private static Period period(@NonNull String from, String to) {
