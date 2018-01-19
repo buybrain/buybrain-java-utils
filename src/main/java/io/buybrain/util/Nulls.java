@@ -1,4 +1,4 @@
-package io.buybrain.util.time;
+package io.buybrain.util;
 
 import java.util.List;
 
