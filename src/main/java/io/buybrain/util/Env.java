@@ -3,6 +3,8 @@ package io.buybrain.util;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.Integer.parseInt;
@@ -12,6 +14,8 @@ import static java.lang.Integer.parseInt;
  */
 @AllArgsConstructor
 public class Env {
+    private static final List<String> TRUTHY = Arrays.asList("1", "true", "t", "yes", "y");
+    
     private final Map<String, String> env;
 
     /**
@@ -71,5 +75,13 @@ public class Env {
      */
     public int getInt(@NonNull String key, int defaultValue) {
         return parseInt(getString(key, Integer.toString(defaultValue)));
+    }
+    
+    public Boolean getBoolean(@NonNull String key) {
+        return TRUTHY.contains(getString(key).toLowerCase());
+    }
+
+    public Boolean getBoolean(@NonNull String key, boolean defaultValue) {
+        return TRUTHY.contains(getString(key, defaultValue ? "y" : "n").toLowerCase());
     }
 }

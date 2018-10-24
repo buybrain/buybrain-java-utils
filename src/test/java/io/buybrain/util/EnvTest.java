@@ -11,6 +11,8 @@ public class EnvTest {
     private final Env SUT = new Env(new HashMap<String, String>() {{
         put("STR", "hello");
         put("NUM", "123");
+        put("BOOL1", "Yes");
+        put("BOOL2", "Nope");
     }});
 
     @Test
@@ -46,5 +48,13 @@ public class EnvTest {
     @Test(expectedExceptions = NumberFormatException.class)
     public void testGetIntInvalidValue() {
         SUT.getInt("STR");
+    }
+    
+    @Test
+    public void testGetBool() {
+        assertThat(SUT.getBoolean("BOOL1"), is(true));
+        assertThat(SUT.getBoolean("BOOL2"), is(false));
+        assertThat(SUT.getBoolean("BOOL3", true), is(true));
+        assertThat(SUT.getBoolean("BOOL3", false), is(false));
     }
 }
